@@ -11,7 +11,8 @@ namespace Huffman
     {
         public static void Main(string[] args)
         {
-            TestAll("AAAAAAABBCCCDEEEEFFFFFFG");
+            TestAll("AAAAAAABBCCCDEEEEFFFFFFGHIIJ");
+            //TestAll(new string('f', 5) + new string('e', 9) + new string('c', 12) + new string('b', 13) + new string('d', 16) + new string('a', 45));
 
             TestSerialize(new byte[][] { new byte[] { }, new byte[] { 0x00, 0x01 }, new byte[] { 0x02, 0x11 }, new byte[] { 0x03, 0x21 }, new byte[] { 0x12, 0x31 }, new byte[] { 0x41 }, new byte[] { 0x04, 0x13, 0x22, 0x51 }, new byte[] { 0x32, 0x61 }, new byte[] { 0x71 }, new byte[] { 0x05, 0x14, 0x42 }, new byte[] { 0x23, 0x33, 0x81, 0x91 }, new byte[] { 0x15, 0xA1, 0xB1 }, new byte[] { 0x52 }, new byte[] { }, new byte[] { 0x62, 0xF0 }, new byte[] { 0xC1, 0xD1, 0xE1 }, });
         }
@@ -22,7 +23,12 @@ namespace Huffman
             var restoredHuffmanTable = restoredRootNode.ToTable();
 
             Console.WriteLine();
-            Console.WriteLine($"Serialize As Table Test");
+            Console.WriteLine($"Serialization As Table Result");
+
+            if (restoredHuffmanTable.Length != huffmanTable.Length)
+            {
+                throw new InvalidProgramException("Table Changed");
+            }
 
             for (var depth = 0; depth < restoredHuffmanTable.Length; depth++)
             {
@@ -31,6 +37,12 @@ namespace Huffman
                 Console.WriteLine();
                 Console.WriteLine($"   Length : {depth + 1}");
                 Console.WriteLine($"   Values : {string.Join(", ", values.Select(x => $"0x{x:X2}"))}");
+
+                if (values.SequenceEqual(huffmanTable[depth]) == false)
+                {
+                    throw new InvalidProgramException("Table Changed");
+                }
+
             }
 
         }
@@ -50,7 +62,7 @@ namespace Huffman
             }
 
             Console.WriteLine();
-            Console.WriteLine("Nodes By Length");
+            Console.WriteLine("Nodes By Table");
 
             var table = rootNode.ToTable();
 
@@ -64,12 +76,29 @@ namespace Huffman
             }
 
             Console.WriteLine();
-            Console.WriteLine("Encode Result");
+            Console.WriteLine("Bitstream Encode Result");
+            Console.WriteLine();
             Console.WriteLine($"    {string.Join("", collection.Select(n => nodeMap[n]))}");
 
-            var restoredRootNode = HuffmanNode<T>.FromTable(table);
             Console.WriteLine();
-            Console.WriteLine($"Serialize As Table Test Result : {rootNode.ToString().Equals(restoredRootNode.ToString())}");
+            Console.WriteLine("Serialization As Table Result");
+            Console.WriteLine();
+
+            var restoredRootNode = HuffmanNode<T>.FromTable(table);
+
+            foreach (var pair in restoredRootNode.ToMap())
+            {
+                var prevPath = nodeMap[pair.Key];
+                var currPath = pair.Value;
+                Console.WriteLine($"    {pair.Key} : {prevPath} => {currPath}");
+
+                if (prevPath.Length != currPath.Length)
+                {
+                    throw new InvalidProgramException("Length Changed");
+                }
+
+            }
+
         }
 
         public class HuffmanNode<T> : IEnumerable<HuffmanNode<T>>
@@ -147,6 +176,7 @@ namespace Huffman
 
                         var node = new HuffmanNode<T>(left, right);
                         var count = count1 + count2;
+                        //Console.WriteLine($"{node} => {count}");
                         var insertIndex = 0;
 
                         for (insertIndex = nodes.Count; insertIndex > 0; insertIndex--)
