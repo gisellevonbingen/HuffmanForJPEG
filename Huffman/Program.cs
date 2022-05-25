@@ -75,7 +75,7 @@ namespace Huffman
 
                 Console.WriteLine();
                 Console.WriteLine($"   Length : {depth + 1}");
-                Console.WriteLine($"   Simbols : {string.Join(", ", simbols)}");
+                Console.WriteLine($"   Simbols : {string.Join(", ", simbols.Select(x => $"0x{x:X2}"))}");
             }
 
             Console.WriteLine();
