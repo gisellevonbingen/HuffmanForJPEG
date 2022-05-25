@@ -37,7 +37,7 @@ namespace Huffman
                 var simbols = restoredSimbolTable[depth];
 
                 Console.WriteLine();
-                Console.WriteLine($"   Length : {depth + 1}");
+                Console.WriteLine($"   Code Length : {depth + 1}");
                 Console.WriteLine($"   Simbols : {string.Join(", ", simbols.Select(x => $"0x{x:X2}"))}");
 
                 if (simbols.SequenceEqual(simbolTable[depth]) == false)
@@ -61,7 +61,7 @@ namespace Huffman
 
             foreach (var pair in nodeMap.OrderBy(p => p.Key))
             {
-                Console.WriteLine($"    {pair.Key} : {pair.Value}");
+                Console.WriteLine($"    0x{pair.Key:X2} : {pair.Value}");
             }
 
             Console.WriteLine();
@@ -74,7 +74,7 @@ namespace Huffman
                 var simbols = sombolTable[depth];
 
                 Console.WriteLine();
-                Console.WriteLine($"   Length : {depth + 1}");
+                Console.WriteLine($"   Code Length : {depth + 1}");
                 Console.WriteLine($"   Simbols : {string.Join(", ", simbols.Select(x => $"0x{x:X2}"))}");
             }
 
