@@ -9,7 +9,7 @@ namespace Huffman
 {
     public class HuffmanNode<T> : IEnumerable<HuffmanNode<T>>
     {
-        public static HuffmanNode<T> FromTable(T[][] table)
+        public static HuffmanNode<T> FromSimbolTable(T[][] table)
         {
             var prevDepthNodes = new List<HuffmanNode<T>>();
 

@@ -21,7 +21,7 @@ namespace Huffman
 
         public static void TestSerialize<T>(T[][] simbolTable)
         {
-            var restoredRootNode = HuffmanNode<T>.FromTable(simbolTable);
+            var restoredRootNode = HuffmanNode<T>.FromSimbolTable(simbolTable);
             var restoredSimbolTable = restoredRootNode.ToSimbolTable();
 
             Console.WriteLine();
@@ -141,7 +141,7 @@ namespace Huffman
             Console.WriteLine("Serialization As Table Result");
             Console.WriteLine();
 
-            var restoredRootNode = HuffmanNode<byte>.FromTable(sombolTable);
+            var restoredRootNode = HuffmanNode<byte>.FromSimbolTable(sombolTable);
 
             foreach (var pair in restoredRootNode.ToCodeTable())
             {
