@@ -161,9 +161,9 @@ namespace Huffman
             return simbolTable.ToArray();
         }
 
-        public Dictionary<T, HuffmanCode> ToCodeMap() => this.ToCodeMap(default);
+        public Dictionary<T, HuffmanCode> ToCodeTable() => this.ToCodeTable(default);
 
-        public Dictionary<T, HuffmanCode> ToCodeMap(HuffmanCode code)
+        public Dictionary<T, HuffmanCode> ToCodeTable(HuffmanCode code)
         {
             var map = new Dictionary<T, HuffmanCode>();
 
@@ -173,7 +173,7 @@ namespace Huffman
 
                 for (var i = 0; i < children.Length; i++)
                 {
-                    foreach (var pair in children[i].ToCodeMap(new HuffmanCode(code, i)))
+                    foreach (var pair in children[i].ToCodeTable(new HuffmanCode(code, i)))
                     {
                         map[pair.Key] = pair.Value;
                     }

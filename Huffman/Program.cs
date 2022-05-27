@@ -53,7 +53,7 @@ namespace Huffman
         {
             var bytes = Encoding.ASCII.GetBytes(text);
             var rootNode = HuffmanNode<byte>.CreateRootNode(bytes);
-            var nodeMap = rootNode.ToCodeMap();
+            var nodeMap = rootNode.ToCodeTable();
 
             Console.WriteLine();
             Console.WriteLine("Nodes By Element");
@@ -143,7 +143,7 @@ namespace Huffman
 
             var restoredRootNode = HuffmanNode<byte>.FromTable(sombolTable);
 
-            foreach (var pair in restoredRootNode.ToCodeMap())
+            foreach (var pair in restoredRootNode.ToCodeTable())
             {
                 var prevCode = nodeMap[pair.Key];
                 var currCode = pair.Value;
