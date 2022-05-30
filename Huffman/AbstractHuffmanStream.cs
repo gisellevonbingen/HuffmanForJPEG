@@ -17,8 +17,10 @@ namespace Huffman
         private int WritingByte = 0;
         private int WritingPosition = 0;
 
-        public long TotalReads { get; private set; }
-        public long TotalWrites { get; private set; }
+        public long InBits { get; private set; }
+        public long InBytes { get; private set; }
+        public long OutBits { get; private set; }
+        public long OutBytes { get; private set; }
 
         protected AbstractHuffmanStream(Stream baseStream) : this(baseStream, false)
         {
@@ -56,6 +58,7 @@ namespace Huffman
             var bitMask = 1 << shift;
             var bit = (this.ReadingByte & bitMask) >> shift;
             this.ReadingPosition--;
+            this.InBits++;
 
             return bit;
         }
@@ -84,7 +87,7 @@ namespace Huffman
 
                     if (code.Raw == rawCode && code.Length == length)
                     {
-                        this.TotalReads++;
+                        this.InBytes++;
                         return pair.Key;
                     }
                     else if (code.Length > looksMaxLength)
@@ -120,10 +123,13 @@ namespace Huffman
             return count;
         }
 
+        public void WriteEncodedBit(bool bit) => this.WriteEncodedBit(bit ? 1 : 0);
+
         public void WriteEncodedBit(int bit)
         {
-            this.WritingByte |= bit << (7 - this.WritingPosition);
+            this.WritingByte = (this.WritingByte << 1) | bit;
             this.WritingPosition++;
+            this.OutBits++;
 
             if (this.WritingPosition == 8)
             {
@@ -151,7 +157,7 @@ namespace Huffman
                 this.WriteEncodedBit(bit);
             }
 
-            this.TotalWrites++;
+            this.OutBytes++;
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -170,7 +176,7 @@ namespace Huffman
             if (this.WritingPosition > 0)
             {
                 this.BaseStream.WriteByte((byte)this.WritingByte);
-                this.ReadingByte = 0;
+                this.WritingByte = 0;
                 this.WritingPosition = 0;
             }
 
