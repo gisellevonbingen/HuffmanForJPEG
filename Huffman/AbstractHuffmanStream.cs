@@ -127,7 +127,8 @@ namespace Huffman
 
         public void WriteEncodedBit(int bit)
         {
-            this.WritingByte = (this.WritingByte << 1) | bit;
+            var shift = 7 - this.WritingPosition;
+            this.WritingByte |= bit << shift;
             this.WritingPosition++;
             this.OutBits++;
 
