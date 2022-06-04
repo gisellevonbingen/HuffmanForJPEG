@@ -7,61 +7,21 @@ using System.Threading.Tasks;
 
 namespace Huffman
 {
-    public abstract class AbstractHuffmanStream : Stream
+    public abstract class AbstractHuffmanStream : BitStream
     {
-        private readonly Stream BaseStream;
-        private readonly bool LeaveOpen;
-
-        private int ReadingByte = 0;
-        private int ReadingPosition = 0;
-        private int WritingByte = 0;
-        private int WritingPosition = 0;
-
-        public long InBits { get; private set; }
-        public long InBytes { get; private set; }
-        public long OutBits { get; private set; }
-        public long OutBytes { get; private set; }
-
-        protected AbstractHuffmanStream(Stream baseStream) : this(baseStream, false)
+        protected AbstractHuffmanStream(Stream baseStream) : base(baseStream)
         {
 
         }
 
-        protected AbstractHuffmanStream(Stream baseStream, bool leaveOpen)
+        protected AbstractHuffmanStream(Stream baseStream, bool leaveOpen) : base(baseStream, leaveOpen)
         {
-            this.BaseStream = baseStream;
-            this.LeaveOpen = leaveOpen;
+
         }
 
         protected abstract Dictionary<byte, HuffmanCode> NextReadingCodes();
 
         protected abstract Dictionary<byte, HuffmanCode> NextWritingCodes();
-
-        protected virtual int ReadEncodedByte() => this.BaseStream.ReadByte();
-
-        protected virtual void WriteEncodedByte(byte value) => this.BaseStream.WriteByte(value);
-
-        public int ReadEncodedBit()
-        {
-            if (this.ReadingPosition == 0)
-            {
-                this.ReadingPosition = 8;
-                this.ReadingByte = this.ReadEncodedByte();
-            }
-
-            if (this.ReadingByte == -1)
-            {
-                return -1;
-            }
-
-            var shift = this.ReadingPosition - 1;
-            var bitMask = 1 << shift;
-            var bit = (this.ReadingByte & bitMask) >> shift;
-            this.ReadingPosition--;
-            this.InBits++;
-
-            return bit;
-        }
 
         public override int ReadByte()
         {
@@ -70,7 +30,7 @@ namespace Huffman
 
             for (var i = 0; ; i++)
             {
-                var bit = this.ReadEncodedBit();
+                var bit = this.ReadBit();
 
                 if (bit == -1)
                 {
@@ -123,24 +83,6 @@ namespace Huffman
             return count;
         }
 
-        public void WriteEncodedBit(bool bit) => this.WriteEncodedBit(bit ? 1 : 0);
-
-        public void WriteEncodedBit(int bit)
-        {
-            var shift = 7 - this.WritingPosition;
-            this.WritingByte |= bit << shift;
-            this.WritingPosition++;
-            this.OutBits++;
-
-            if (this.WritingPosition == 8)
-            {
-                this.WriteEncodedByte((byte)this.WritingByte);
-                this.WritingByte = 0;
-                this.WritingPosition = 0;
-            }
-
-        }
-
         public override void WriteByte(byte value)
         {
             var codes = this.NextWritingCodes();
@@ -155,7 +97,7 @@ namespace Huffman
                 var shift = code.Length - 1 - i;
                 var bitMask = 1 << shift;
                 var bit = (code.Raw & bitMask) >> shift;
-                this.WriteEncodedBit(bit);
+                this.WriteBit(bit);
             }
 
             this.OutBytes++;
@@ -166,24 +108,6 @@ namespace Huffman
             for (var i = 0; i < count; i++)
             {
                 this.WriteByte(buffer[offset + i]);
-            }
-
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (this.WritingPosition > 0)
-            {
-                this.BaseStream.WriteByte((byte)this.WritingByte);
-                this.WritingByte = 0;
-                this.WritingPosition = 0;
-            }
-
-            if (this.LeaveOpen == false)
-            {
-                this.BaseStream.Dispose();
             }
 
         }
